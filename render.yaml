@@ -1,0 +1,31 @@
+# Render Blueprint: cria o servidor do app e o banco PostgreSQL de uma vez.
+# Passo a passo no README.md, em "Publicar o app no Render".
+services:
+  - type: web
+    name: vozes-em-maos
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /health
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: vozes-em-maos-db
+          property: connectionString
+      - key: JWT_SECRET_KEY
+        generateValue: true
+      # Retreinou o modelo? Troque aqui também (além do backend/.env).
+      - key: MODEL_PATH
+        value: models/libras_grupo_2026-11-02.joblib
+      # "Esqueci a senha": o plano grátis do Render bloqueia SMTP, então lá o envio é pelo
+      # Gmail através de um Google Apps Script (ver backend/.env.example).
+      # sync: false = o Render pede o valor no painel (não fica no GitHub).
+      - key: GMAIL_SCRIPT_URL
+        sync: false
+      - key: GMAIL_SCRIPT_SECRET
+        sync: false
+
+databases:
+  - name: vozes-em-maos-db
+    plan: free
